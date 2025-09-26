@@ -1,0 +1,136 @@
+import random
+
+# Clase Entrenador
+class Entrenador:
+    def __init__(self, nombre):
+        self.nombre = nombre
+
+# Clase Pokemon
+class Pokemon:
+    def __init__(self, nombre):
+        self.nombre = nombre
+        self.max_ataque = random.randint(20, 100)
+        self.vida_max = random.randint(150, 400)
+        self.vida_actual = self.vida_max
+
+    def recuperar(self):
+        self.vida_actual = self.vida_max
+
+# Variables globales para los jugadores
+entrenador1 = None
+pokemon1 = None
+entrenador2 = None
+pokemon2 = None
+ganadas = 0
+perdidas = 0
+
+# Crear entrenador y pokemon
+def crearEntrenadorPokemon(num):
+    global entrenador1, pokemon1, entrenador2, pokemon2
+
+    print(f"\nCreando Entrenador y Pokémon {num}:")
+    nombre_entrenador = input("Ingrese el nombre del entrenador: ")
+    nombre_pokemon = input("Ingrese el nombre del Pokémon: ")
+
+    nuevo_entrenador = Entrenador(nombre_entrenador)
+    nuevo_pokemon = Pokemon(nombre_pokemon)
+
+    print(f"\nEstadísticas de {nuevo_pokemon.nombre}:")
+    print(f"Ataque máximo: {nuevo_pokemon.max_ataque}")
+    print(f"Vida máxima: {nuevo_pokemon.vida_max}\n")
+
+    if num == 1:
+        entrenador1 = nuevo_entrenador
+        pokemon1 = nuevo_pokemon
+    else:
+        entrenador2 = nuevo_entrenador
+        pokemon2 = nuevo_pokemon
+
+# Valor de ataque aleatorio
+def valorDeAtaque(num):
+    if num == 1:
+        return random.randint(0, pokemon1.max_ataque)
+    else:
+        return random.randint(0, pokemon2.max_ataque)
+
+# Defender - calcula daño recibido
+def defender(num, ataque):
+    dado = random.randint(1, 6)
+    if dado == 6:
+        ataque = 0
+        print("¡Suerte! El ataque fue bloqueado completamente.")
+
+    if num == 1:
+        pokemon1.vida_actual -= ataque
+        return pokemon1.vida_actual
+    else:
+        pokemon2.vida_actual -= ataque
+        return pokemon2.vida_actual
+
+# Recuperar vida al máximo
+def recuperar():
+    pokemon1.recuperar()
+
+# Programa principal
+def juego():
+    global ganadas, perdidas
+
+    print("¡Bienvenido al mundo Pokémon!")
+    crearEntrenadorPokemon(1)
+
+    while True:
+        print("\n¿Qué desea hacer?")
+        print("P - Pelear")
+        print("F - Finalizar juego")
+        opcion = input("Elija una opción (P/F): ").upper()
+
+        if opcion == "F":
+            print("\n--- ESTADÍSTICAS FINALES ---")
+            print(f"Entrenador: {entrenador1.nombre}")
+            print(f"Pokémon: {pokemon1.nombre}")
+            print(f"Ataque máximo: {pokemon1.max_ataque}")
+            print(f"Vida máxima: {pokemon1.vida_max}")
+            print(f"Encuentros ganados: {ganadas}")
+            print(f"Encuentros perdidos: {perdidas}")
+            print("¡Gracias por jugar!")
+            break
+
+        elif opcion == "P":
+            recuperar()
+            crearEntrenadorPokemon(2)
+
+            # También se recupera el Pokémon del rival
+            pokemon2.recuperar()
+
+            turno = 1  # 1 = jugador, 2 = rival
+            print("\n¡Comienza la pelea!")
+
+            while pokemon1.vida_actual > 0 and pokemon2.vida_actual > 0:
+                if turno == 1:
+                    print(f"\nTurno de {pokemon1.nombre} ({entrenador1.nombre})")
+                    ataque = valorDeAtaque(1)
+                    print(f"{pokemon1.nombre} ataca con fuerza: {ataque}")
+                    vida = defender(2, ataque)
+                    print(f"{pokemon2.nombre} tiene ahora {vida} de vida.")
+                    turno = 2
+                else:
+                    print(f"\nTurno de {pokemon2.nombre} ({entrenador2.nombre})")
+                    ataque = valorDeAtaque(2)
+                    print(f"{pokemon2.nombre} ataca con fuerza: {ataque}")
+                    vida = defender(1, ataque)
+                    print(f"{pokemon1.nombre} tiene ahora {vida} de vida.")
+                    turno = 1
+
+            # Resultado
+            if pokemon1.vida_actual > 0:
+                print(f"\n¡{entrenador1.nombre} gana la batalla con {pokemon1.nombre}!")
+                ganadas += 1
+            else:
+                print(f"\n¡{entrenador2.nombre} gana la batalla con {pokemon2.nombre}!")
+                perdidas += 1
+
+        else:
+            print("Opción no válida. Intente de nuevo.")
+
+# Iniciar el juego
+juego()
